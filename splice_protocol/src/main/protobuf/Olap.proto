@@ -18,19 +18,19 @@ message Command{
 
 message Status{
     extend Command{
-        required Status command = 100;
+        optional Status command = 100;
     }
 }
 
 message Cancel{
     extend Command{
-        required Cancel command = 101;
+        optional Cancel command = 101;
     }
 }
 
 message Submit{
     extend Command{
-        required Submit command = 102;
+        optional Submit command = 102;
     }
     required bytes commandBytes = 1;
 }
@@ -49,27 +49,27 @@ message Response{
 
 message FailedResponse{
     extend Response{
-        required FailedResponse response = 100;
+        optional FailedResponse response = 100;
     }
     required bytes errorBytes = 1;
 }
 
 message ProgressResponse{
     extend Response{
-        required ProgressResponse response = 101;
+        optional ProgressResponse response = 101;
     }
     required int64 tickTimeMillis = 1;
 }
 
 message CancelledResponse{
     extend Response{
-        required CancelledResponse response = 102;
+        optional CancelledResponse response = 102;
     }
 }
 
 message Result{
     extend Response{
-        required Result response = 103;
+        optional Result response = 103;
     }
     required bytes resultBytes = 1;
 }
