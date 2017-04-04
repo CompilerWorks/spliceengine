@@ -14,14 +14,12 @@
 
 package com.splicemachine.derby.impl.sql.catalog;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
-import java.util.ServiceLoader;
 
 import com.googlecode.concurrentlinkedhashmap.ConcurrentLinkedHashMap;
-import com.splicemachine.extensions.DataDictionaryExtension;
+import com.splicemachine.extensions.Extension;
 import com.splicemachine.db.iapi.reference.SQLState;
 import com.splicemachine.db.iapi.sql.dictionary.*;
 import com.splicemachine.management.Manager;
@@ -100,17 +98,9 @@ public class SpliceDataDictionary extends DataDictionaryImpl{
     private volatile TabInfoImpl physicalStatsTable=null;
     private Splice_DD_Version spliceSoftwareVersion;
 
-    private final List<DataDictionaryExtension> extensions = new ArrayList<>();
-
     public static final String SPLICE_DATA_DICTIONARY_VERSION="SpliceDataDictionaryVersion";
     private ConcurrentLinkedHashMap<String, byte[]> sequenceRowLocationBytesMap=null;
     private ConcurrentLinkedHashMap<String, SequenceDescriptor[]> sequenceDescriptorMap=null;
-
-    public SpliceDataDictionary() {
-        for (DataDictionaryExtension dde : ServiceLoader.load(DataDictionaryExtension.class)) {
-            extensions.add(dde);
-        }
-    }
 
     @Override
     public SystemProcedureGenerator getSystemProcedures(){
@@ -341,8 +331,7 @@ public class SpliceDataDictionary extends DataDictionaryImpl{
         //create the Statistics tables
         createStatisticsTables(tc);
 
-        for (DataDictionaryExtension dde : extensions)
-            dde.createDictionaryTables(this,params,tc,ddg);
+        EngineDriver.driver().getExtensionManager().createDictionaryTables(this,params,tc,ddg);
     }
 
     @Override

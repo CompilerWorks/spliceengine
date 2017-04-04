@@ -17,6 +17,7 @@ package com.splicemachine.derby.lifecycle;
 import com.splicemachine.SqlEnvironment;
 import com.splicemachine.access.api.SConfiguration;
 import com.splicemachine.access.api.DatabaseVersion;
+import com.splicemachine.extensions.ExtensionManager;
 import com.splicemachine.uuid.Snowflake;
 
 import java.sql.Connection;
@@ -31,6 +32,7 @@ public abstract class EngineSqlEnvironment implements SqlEnvironment{
     private Snowflake snowflake;
     private Connection connection;
     private DatabaseVersion version;
+    private ExtensionManager extensionManager;
 
     public EngineSqlEnvironment(){
     }
@@ -41,6 +43,12 @@ public abstract class EngineSqlEnvironment implements SqlEnvironment{
         this.connection = internalConnection;
         this.version = spliceVersion;
         this.config = config;
+        this.extensionManager = new ExtensionManager(config, snowflake, internalConnection, spliceVersion);
+    }
+
+    @Override
+    public ExtensionManager extensionManager() {
+        return extensionManager();
     }
 
     @Override

@@ -24,6 +24,7 @@ import com.splicemachine.derby.iapi.sql.olap.OlapClient;
 import com.splicemachine.derby.impl.sql.*;
 import com.splicemachine.access.api.DatabaseVersion;
 import com.splicemachine.derby.impl.sql.NoOpManager;
+import com.splicemachine.extensions.ExtensionManager;
 import com.splicemachine.management.DatabaseAdministrator;
 import com.splicemachine.management.DirectDatabaseAdministrator;
 import com.splicemachine.management.Manager;
@@ -43,6 +44,7 @@ public class MEngineSqlEnv extends EngineSqlEnvironment{
     private DataSetProcessorFactory dspFactory;
     private SqlExceptionFactory exceptionFactory;
     private DatabaseAdministrator dbAdmin;
+    private ExtensionManager extensionManager;
 
     @Override
     public void initialize(SConfiguration config,
@@ -55,6 +57,7 @@ public class MEngineSqlEnv extends EngineSqlEnvironment{
         this.dspFactory = new ControlOnlyDataSetProcessorFactory();
         this.exceptionFactory = new MSqlExceptionFactory(SIDriver.driver().getExceptionFactory());
         this.dbAdmin = new DirectDatabaseAdministrator();
+        this.extensionManager = new ExtensionManager(config, snowflake, internalConnection, spliceVersion);
     }
 
     @Override
@@ -95,5 +98,10 @@ public class MEngineSqlEnv extends EngineSqlEnvironment{
     @Override
     public void refreshEnterpriseFeatures() {
         // No Op
+    }
+
+    @Override
+    public ExtensionManager extensionManager() {
+        return extensionManager;
     }
 }
