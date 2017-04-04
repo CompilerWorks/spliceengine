@@ -14,7 +14,6 @@
 
 package com.splicemachine.derby.impl.sql.catalog;
 
-import com.splicemachine.EngineDriver;
 import com.splicemachine.db.iapi.stats.ColumnStatisticsImpl;
 import com.splicemachine.db.impl.sql.catalog.SystemColumnImpl;
 import com.splicemachine.derby.impl.load.HdfsImport;
@@ -33,6 +32,7 @@ import com.splicemachine.db.iapi.store.access.TransactionController;
 import com.splicemachine.db.iapi.types.DataTypeDescriptor;
 import com.splicemachine.db.impl.sql.catalog.DefaultSystemProcedureGenerator;
 import com.splicemachine.db.impl.sql.catalog.Procedure;
+import com.splicemachine.extensions.ExtensionManager;
 import com.splicemachine.procedures.external.ExternalTableSystemProcedures;
 
 /**
@@ -734,7 +734,7 @@ public class SpliceSystemProcedures extends DefaultSystemProcedureGenerator {
 
             } // End iteration through map keys (schema UUIDs)
 
-            EngineDriver.driver().getExtensionManager().addProcedures(sysProcedures, dictionary, tc);
+            ExtensionManager.INSTANCE.addProcedures(sysProcedures, dictionary, tc);
 
             // Initialization was successful.  Mark the class as initialized.
             initialized = true;

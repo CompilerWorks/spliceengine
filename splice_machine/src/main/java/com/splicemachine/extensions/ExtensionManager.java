@@ -14,16 +14,14 @@
 
 package com.splicemachine.extensions;
 
-import com.splicemachine.access.api.DatabaseVersion;
-import com.splicemachine.access.api.SConfiguration;
+import com.splicemachine.db.catalog.UUID;
 import com.splicemachine.db.iapi.error.StandardException;
 import com.splicemachine.db.iapi.sql.dictionary.DataDescriptorGenerator;
 import com.splicemachine.db.iapi.sql.dictionary.DataDictionary;
 import com.splicemachine.db.iapi.store.access.TransactionController;
+import com.splicemachine.db.impl.sql.catalog.Procedure;
 import com.splicemachine.derby.impl.sql.catalog.SpliceDataDictionary;
-import com.splicemachine.uuid.Snowflake;
 
-import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -31,12 +29,16 @@ import java.util.Properties;
 import java.util.ServiceLoader;
 
 public class ExtensionManager implements Extension {
+    public static final ExtensionManager INSTANCE = new ExtensionManager();
+    
     private final List<Extension> extensions = new ArrayList<>();
 
-    public ExtensionManager(SConfiguration config, Snowflake snowflake, Connection internalConnection, DatabaseVersion spliceVersion) {
+    public ExtensionManager() {
         for (Extension dde : ServiceLoader.load(Extension.class))
             this.extensions.add(dde);
     }
+    
+    // TODO add setters for SConfiguration config, Snowflake snowflake, Connection internalConnection, DatabaseVersion spliceVersion
 
     @Override
     public void createDictionaryTables(SpliceDataDictionary sdd, Properties params, TransactionController tc, DataDescriptorGenerator ddg) throws StandardException {
@@ -45,7 +47,7 @@ public class ExtensionManager implements Extension {
     }
 
     @Override
-    public void getProcedures(Map procedures, DataDictionary dictionary, TransactionController tc) throws StandardException {
+    public void addProcedures(Map<UUID,List<Procedure>> procedures, DataDictionary dictionary, TransactionController tc) throws StandardException {
         for (Extension extension : extensions)
             extension.addProcedures(procedures, dictionary, tc);
     }

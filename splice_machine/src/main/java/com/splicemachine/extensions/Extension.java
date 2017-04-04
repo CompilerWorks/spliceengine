@@ -14,16 +14,19 @@
 
 package com.splicemachine.extensions;
 
+import com.splicemachine.db.catalog.UUID;
 import com.splicemachine.db.iapi.error.StandardException;
 import com.splicemachine.db.iapi.sql.dictionary.DataDescriptorGenerator;
 import com.splicemachine.db.iapi.sql.dictionary.DataDictionary;
 import com.splicemachine.db.iapi.store.access.TransactionController;
+import com.splicemachine.db.impl.sql.catalog.Procedure;
 import com.splicemachine.derby.impl.sql.catalog.SpliceDataDictionary;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
 public interface Extension {
     void createDictionaryTables(SpliceDataDictionary sdd, Properties params, TransactionController tc, DataDescriptorGenerator ddg) throws StandardException;
-    void addProcedures(Map/*<UUID,List<Procedure>>*/ procedures, DataDictionary dictionary, TransactionController tc) throws StandardException;
+    void addProcedures(Map<UUID,List<Procedure>> procedures, DataDictionary dictionary, TransactionController tc) throws StandardException;
 }

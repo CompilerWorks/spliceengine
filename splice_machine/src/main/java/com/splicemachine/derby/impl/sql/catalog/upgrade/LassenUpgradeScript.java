@@ -46,7 +46,7 @@ public class LassenUpgradeScript extends UpgradeScriptBase {
         sdd.createStatisticsTables(tc);
         sdd.createLassenTables(tc);
 //        SpliceUtilities.createRestoreTableIfNecessary();
-//        EngineDriver.driver().getExtensionManager().createDictionaryTables(this,null,tc,ddg);
+//        ExtensionManager.INSTANCE.createDictionaryTables(?,null,tc,ddg);
     }
 
 

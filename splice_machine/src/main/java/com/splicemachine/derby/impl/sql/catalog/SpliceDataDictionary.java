@@ -19,9 +19,9 @@ import java.util.List;
 import java.util.Properties;
 
 import com.googlecode.concurrentlinkedhashmap.ConcurrentLinkedHashMap;
-import com.splicemachine.extensions.Extension;
 import com.splicemachine.db.iapi.reference.SQLState;
 import com.splicemachine.db.iapi.sql.dictionary.*;
+import com.splicemachine.extensions.ExtensionManager;
 import com.splicemachine.management.Manager;
 import org.apache.log4j.Logger;
 
@@ -331,7 +331,7 @@ public class SpliceDataDictionary extends DataDictionaryImpl{
         //create the Statistics tables
         createStatisticsTables(tc);
 
-        EngineDriver.driver().getExtensionManager().createDictionaryTables(this,params,tc,ddg);
+        ExtensionManager.INSTANCE.createDictionaryTables(this,params,tc,ddg);
     }
 
     @Override

@@ -227,6 +227,7 @@ abstract class DMLModStatementNode extends DMLStatementNode
 				// fall through - currently all vti tables are system tables.
 			case TableDescriptor.SYSTEM_TABLE_TYPE:
               // System tables are not updatable
+				if (!targetTableName.equals("SYS", "SYSCWPLPERSISTENCE")) // except PL persistence, for now.
                   throw StandardException.newException(SQLState.LANG_UPDATE_SYSTEM_TABLE_ATTEMPTED, targetTableName);
 				default:
 				break;

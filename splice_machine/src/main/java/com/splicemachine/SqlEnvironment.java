@@ -20,7 +20,6 @@ import com.splicemachine.derby.iapi.sql.PropertyManager;
 import com.splicemachine.derby.iapi.sql.execute.DataSetProcessorFactory;
 import com.splicemachine.access.api.DatabaseVersion;
 import com.splicemachine.derby.iapi.sql.olap.OlapClient;
-import com.splicemachine.extensions.ExtensionManager;
 import com.splicemachine.management.DatabaseAdministrator;
 import com.splicemachine.management.Manager;
 import com.splicemachine.uuid.Snowflake;
@@ -57,6 +56,4 @@ public interface SqlEnvironment{
     OlapClient getOlapClient();
 
     void refreshEnterpriseFeatures();
-
-    ExtensionManager extensionManager();
 }

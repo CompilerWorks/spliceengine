@@ -26,7 +26,6 @@ import com.splicemachine.derby.iapi.sql.execute.DataSetProcessorFactory;
 import com.splicemachine.derby.iapi.sql.olap.OlapClient;
 import com.splicemachine.derby.impl.sql.execute.sequence.SequenceKey;
 import com.splicemachine.derby.impl.sql.execute.sequence.SpliceSequence;
-import com.splicemachine.extensions.ExtensionManager;
 import com.splicemachine.management.DatabaseAdministrator;
 import com.splicemachine.management.Manager;
 import com.splicemachine.tools.CachedResourcePool;
@@ -54,7 +53,6 @@ public class EngineDriver{
     private final OlapClient olapClient;
     private final SqlEnvironment environment;
     private final ExecutorService threadPool;
-    private final ExtensionManager extensionManager;
 
     public static void loadDriver(SqlEnvironment environment){
         INSTANCE=new EngineDriver(environment);
@@ -81,7 +79,6 @@ public class EngineDriver{
         this.propertyManager = environment.getPropertyManager();
         this.exceptionFactory = environment.exceptionFactory();
         this.dbAdmin = environment.databaseAdministrator();
-        this.extensionManager = environment.extensionManager();
         this.sequencePool=CachedResourcePool.Builder.<SpliceSequence, SequenceKey>newBuilder()
                 .expireAfterAccess(1,TimeUnit.MINUTES)
                 .generator(new ResourcePool.Generator<SpliceSequence, SequenceKey>(){
@@ -163,9 +160,5 @@ public class EngineDriver{
 
     public ExecutorService getExecutorService() {
         return threadPool;
-    }
-
-    public ExtensionManager getExtensionManager() {
-        return extensionManager;
     }
 }

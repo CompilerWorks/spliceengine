@@ -1018,7 +1018,11 @@ public final class InsertNode extends DMLModStatementNode {
             mb.push((double) this.resultSet.getFinalCostEstimate().getEstimatedRowCount());
             mb.push(this.resultSet.getFinalCostEstimate().getEstimatedCost());
             mb.push(targetTableDescriptor.getVersion());
-            mb.push(this.printExplainInformationForActivation());
+            try {
+            	mb.push(this.printExplainInformationForActivation());
+            } catch (StringIndexOutOfBoundsException e) {
+            	mb.push("whatever dude, explain this.");
+            }
 			BaseJoinStrategy.pushNullableString(mb,targetTableDescriptor.getDelimited());
 			BaseJoinStrategy.pushNullableString(mb,targetTableDescriptor.getEscaped());
 			BaseJoinStrategy.pushNullableString(mb,targetTableDescriptor.getLines());
