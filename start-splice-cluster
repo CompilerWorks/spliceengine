@@ -34,6 +34,9 @@ _kill_em_all () {
 }
 export -f _kill_em_all
 
+#export LOCALHOST=10.9.8.232
+export LOCALHOST=127.0.0.1
+
 BASE_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 DEFAULT_PROFILE="cdh5.6.0"  # default hbase platform profile
 PROFILE=$DEFAULT_PROFILE
@@ -150,7 +153,7 @@ COUNT=65
 ZOO_UP=""
 until [ $COUNT -lt 0 ]; do
     sleep 1
-    ZOO_UP=$(echo 'ruok' | nc localhost 2181)
+    ZOO_UP=$(echo 'ruok' | nc $LOCALHOST 2181)
     if [ -z "$ZOO_UP" ]; then
                     break
     fi
@@ -169,6 +172,7 @@ echo "Starting YARN. Log file is ${YARN_LOG}"
 KAFKALOG="${RUN_DIR}"/kafka.log
 # Start Kafka in background.
 echo "Starting Kafka, log file is ${KAFKALOG}"
+set -x
 (${MVN} exec:exec -P${PROFILE},spliceKafka > ${KAFKALOG} 2>&1) &
 
 SPLICE_LOG="${RUN_DIR}/splice.log"
@@ -176,7 +180,7 @@ echo "Starting Master and 1 Region Server. Log file is ${SPLICE_LOG}"
 ## (master + region server on 1527)
 (${MVN} exec:exec -P${PROFILE},spliceFast ${SYSTEM_PROPS} -Dxml.plan.debug.path=${DEBUG_PATH} > ${SPLICE_LOG} 2>&1) &
 echo -n "  Waiting. "
-while ! echo exit | nc localhost 1527; do echo -n ". " ; sleep 5; done
+while ! echo exit | nc $LOCALHOST 1527; do echo -n "1527. " ; sleep 5; done
 echo
 
 if [[ ${MEMBERS} -gt 0 ]]; then
@@ -186,7 +190,7 @@ if [[ ${MEMBERS} -gt 0 ]]; then
     ## (region server, splice on 1528, 1529, ...)
     (${MVN} exec:exec -P${PROFILE},spliceClusterMember ${SYSTEM_PROPS} -DmemberNumber=${MEMBER} -Dxml.plan.debug.path=${DEBUG_PATH} > ${REGION_SVR_LOG} 2>&1) &
     echo -n "  Waiting. "
-    while ! echo exit | nc localhost $(( 1527 + ${MEMBER} )); do echo -n ". " ; sleep 5; done
+    while ! echo exit | nc $LOCALHOST $(( 1527 + ${MEMBER} )); do echo -n "$(( 1527 + ${MEMBER} )). " ; sleep 5; done
     echo
   done
 fi
