@@ -10220,6 +10220,7 @@ public abstract class DataDictionaryImpl extends BaseDataDictionary{
         } else {
             boolean[] bArray = {false};
             int[] colsToUpdate = {
+                    SYSSOURCECODERowFactory.LAST_MODIFIED,
                     SYSSOURCECODERowFactory.DEFINER_NAME,
                     SYSSOURCECODERowFactory.SOURCE_CODE,
             };
