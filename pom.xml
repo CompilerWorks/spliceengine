@@ -43,7 +43,8 @@
         </repository>
         <repository>
             <id>splicemachine</id>
-            <url>http://nexus.splicemachine.com/nexus/content/groups/developers</url>
+            <url>http://repository.splicemachine.com/nexus/content/groups/public</url>
+            <!--url>http://nexus.splicemachine.com/nexus/content/groups/developers</url-->
         </repository>
     </repositories>
     <pluginRepositories>
@@ -53,7 +54,8 @@
         </pluginRepository>
         <pluginRepository>
             <id>splicemachine</id>
-            <url>http://nexus.splicemachine.com/nexus/content/groups/developers</url>
+            <url>http://repository.splicemachine.com/nexus/content/groups/public</url>
+            <!--url>http://nexus.splicemachine.com/nexus/content/groups/developers</url-->
         </pluginRepository>
         <pluginRepository>
             <id>apache.snapshots</id>
