@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2012 - 2017 Splice Machine, Inc.
+  ~
+  ~ This file is part of Splice Machine.
+  ~ Splice Machine is free software: you can redistribute it and/or modify it under the terms of the
+  ~ GNU Affero General Public License as published by the Free Software Foundation, either
+  ~ version 3, or (at your option) any later version.
+  ~ Splice Machine is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+  ~ without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  ~ See the GNU Affero General Public License for more details.
+  ~ You should have received a copy of the GNU Affero General Public License along with Splice Machine.
+  ~ If not, see <http://www.gnu.org/licenses/>.
+  -->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.splicemachine</groupId>
+    <artifactId>mem_shaded</artifactId>
+    <description>In Memory SQL Engine.</description>
+    <parent>
+        <artifactId>spliceengine-parent</artifactId>
+        <groupId>com.splicemachine</groupId>
+        <version>2.6.0.1717-SNAPSHOT</version>
+    </parent>
+    <dependencies>
+        <dependency>
+            <groupId>com.splicemachine</groupId>
+            <artifactId>mem_sql</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.splicemachine</groupId>
+            <artifactId>mem_storage</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.splicemachine</groupId>
+            <artifactId>mem_pipeline</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
+    <build>
+        <plugins>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.0.0</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <!--createSourcesJar>true</createSourcesJar-->
+                            <!--shadeSourcesContent>true</shadeSourcesContent-->
+
+                            <transformers>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <mainClass>com.splicemachine.derby.lifecycle.MemDatabase</mainClass>
+                                </transformer>
+                            </transformers>
+
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/maven/**</exclude>
+                                        <exclude>META-INF/*.RSA</exclude>
+                                        <exclude>META-INF/*.DSA</exclude>
+                                        <exclude>META-INF/*.SF</exclude>
+                                        <exclude>META-INF/licence/**</exclude>
+                                        <exclude>**/core-site.xml</exclude>
+                                        <exclude>**/hbase-site.xml</exclude>
+                                        <exclude>**/splice-site.xml</exclude>
+                                        <exclude>**/yarn-site.xml</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
+
+                            <artifactSet>
+                                <excludes>
+                                    <exclude>com.splicemachine:mem_shaded</exclude>
+                                    <exclude>com.amazonaws:*</exclude>
+                                    <exclude>com.google.code.findbugs:annotations</exclude>
+                                    <exclude>com.mapr*:*</exclude>
+                                    <exclude>com.sun.jersey:*</exclude>
+                                    <exclude>commons-beanutils:commons-beanutils</exclude>
+                                    <exclude>commons-logging:commons-logging</exclude>
+                                    <!--exclude>log4j:log4j</exclude-->
+                                    <exclude>mapr.fs*:*</exclude>
+                                    <exclude>javax.servlet</exclude>
+                                    <exclude>javax.servlet.jsp</exclude>
+                                    <exclude>org.apache.derby:derbyclient</exclude>
+                                    <exclude>org.apache.hadoop*:*</exclude>
+                                    <exclude>org.apache.hadoop.hbase:*</exclude>
+                                    <exclude>org.apache.hadoop.hbase.ipc:*</exclude>
+                                    <exclude>org.apache.hadoop.hbase.filter:*</exclude>
+                                    <exclude>org.apache.hbase.ipc:*</exclude>
+                                    <exclude>org.apache.hbase.filter:*</exclude>
+                                    <exclude>org.apache.hive:*</exclude>
+                                    <exclude>org.apache.hive.shims:*</exclude>
+                                    <exclude>org.apache.zookeeper:zookeeper</exclude>
+                                    <exclude>org.apache.hadoop:hadoop-mapreduce-client-app</exclude>
+                                    <exclude>org.apache.htrace</exclude>
+                                    <exclude>org.glassfish.*</exclude>
+                                    <exclude>org.glassfish.hk2.external:aopalliance-repackaged</exclude>
+                                    <exclude>org.slf4j</exclude>
+                                </excludes>
+                            </artifactSet>
+
+                            <relocations>
+                                <relocation><pattern>com.carrotsearch</pattern></relocation>
+                                <relocation><pattern>com.clearspring</pattern></relocation>
+                                <relocation><pattern>com.codahale</pattern></relocation>
+                                <relocation><pattern>com.esotericsoftware</pattern></relocation>
+                                <relocation><pattern>com.fasterxml</pattern></relocation>
+                                <relocation><pattern>com.google</pattern></relocation>
+                                <relocation><pattern>com.googlecode</pattern></relocation>
+                                <relocation><pattern>com.jcraft</pattern></relocation>
+                                <relocation><pattern>com.lmax</pattern></relocation>
+                                <relocation><pattern>com.ning</pattern></relocation>
+                                <relocation><pattern>com.sun</pattern></relocation>
+                                <relocation><pattern>com.thoughtworks</pattern></relocation>
+                                <relocation><pattern>com.twitter</pattern></relocation>
+                                <relocation><pattern>com.univocity</pattern></relocation>
+                                <relocation><pattern>com.yahoo</pattern></relocation>
+                                <relocation><pattern>com.yammer</pattern></relocation>
+                                <relocation><pattern>org.antlr</pattern></relocation>
+                                <relocation><pattern>org.aopalliance</pattern></relocation>
+                                <relocation><pattern>org.apache.apache.avro</pattern></relocation>
+                                <relocation><pattern>org.apache.apache.commons</pattern></relocation>
+                                <relocation><pattern>org.apache.apache.curator</pattern></relocation>
+                                <relocation><pattern>org.apache.apache.directory</pattern></relocation>
+                                <relocation><pattern>org.apache.apache.hadoop</pattern></relocation>
+                                <relocation><pattern>org.apache.apache.http</pattern></relocation>
+                                <relocation><pattern>org.apache.apache.ivy</pattern></relocation>
+                                <relocation><pattern>org.apache.apache.jasper</pattern></relocation>
+                                <relocation><pattern>org.apache.apache.lucene</pattern></relocation>
+                                <relocation><pattern>org.apache.apache.oro</pattern></relocation>
+                                <relocation><pattern>org.apache.apache.parquet</pattern></relocation>
+                                <relocation><pattern>org.apache.apache.spark</pattern></relocation>
+                                <relocation><pattern>org.apache.apache.xbean</pattern></relocation>
+                                <relocation><pattern>org.codehaus</pattern></relocation>
+                                <relocation><pattern>org.fusesource</pattern></relocation>
+                                <relocation><pattern>org.iq80</pattern></relocation>
+                                <relocation><pattern>org.jboss</pattern></relocation>
+                                <relocation><pattern>org.jets3t</pattern></relocation>
+                                <relocation><pattern>org.joda</pattern></relocation>
+                                <relocation><pattern>org.json4s</pattern></relocation>
+                                <relocation><pattern>org.mortbay</pattern></relocation>
+                                <relocation><pattern>org.objenesis</pattern></relocation>
+                                <relocation><pattern>org.roaringbitmap</pattern></relocation>
+                                <relocation><pattern>org.scalactic</pattern></relocation>
+                                <relocation><pattern>org.scalatest</pattern></relocation>
+                                <relocation><pattern>org.scalautils</pattern></relocation>
+                                <relocation><pattern>org.spark_project</pattern></relocation>
+                                <relocation><pattern>org.supercsv</pattern></relocation>
+                                <relocation><pattern>org.tukaani</pattern></relocation>
+                                <relocation><pattern>org.xerial</pattern></relocation>
+                                <relocation><pattern>org.znerd</pattern></relocation>
+                                <relocation><pattern>net.jpountz</pattern></relocation>
+                                <relocation><pattern>net.razorvine</pattern></relocation>
+                                <relocation><pattern>de.javakaffee</pattern></relocation>
+                                <relocation><pattern>contribs.mx</pattern></relocation>
+                                <relocation><pattern>io.netty</pattern></relocation>
+                                <relocation><pattern>javassist</pattern></relocation>
+                            </relocations>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>
