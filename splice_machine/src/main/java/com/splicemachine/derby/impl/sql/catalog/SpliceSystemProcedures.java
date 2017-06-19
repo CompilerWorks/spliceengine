@@ -14,28 +14,41 @@
 
 package com.splicemachine.derby.impl.sql.catalog;
 
+import com.google.common.base.Charsets;
+import com.google.common.io.Resources;
 import com.splicemachine.backup.BackupSystemProcedures;
 import com.splicemachine.db.catalog.UUID;
 import com.splicemachine.db.catalog.types.RoutineAliasInfo;
+import com.splicemachine.db.catalog.TypeDescriptor;
 import com.splicemachine.db.iapi.error.StandardException;
 import com.splicemachine.db.iapi.reference.Limits;
+import com.splicemachine.db.iapi.reference.SQLState;
 import com.splicemachine.db.iapi.sql.dictionary.DataDictionary;
 import com.splicemachine.db.iapi.stats.ColumnStatisticsImpl;
 import com.splicemachine.db.iapi.store.access.TransactionController;
 import com.splicemachine.db.iapi.types.DataTypeDescriptor;
+import com.splicemachine.db.iapi.types.TypeId;
 import com.splicemachine.db.impl.sql.catalog.DefaultSystemProcedureGenerator;
 import com.splicemachine.db.impl.sql.catalog.Procedure;
 import com.splicemachine.db.impl.sql.catalog.SystemColumnImpl;
+import com.splicemachine.db.shared.common.sqlj.SysfunProvider;
 import com.splicemachine.derby.impl.load.HdfsImport;
 import com.splicemachine.derby.impl.storage.TableSplit;
 import com.splicemachine.derby.utils.*;
 import com.splicemachine.procedures.external.ExternalTableSystemProcedures;
 
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.net.URL;
+import java.sql.SQLException;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * System procedure generator implementation class that extends
@@ -1129,9 +1142,62 @@ public class SpliceSystemProcedures extends DefaultSystemProcedureGenerator {
                             .isDeterministic(false).ownerClass(GenericSpliceFunctions.class.getCanonicalName())
                             .build()
             ));
+
+            // Add public static methods from SysfunProviders that are on the system classpath.
+            for (Class<?> sysfunProvider : findSysfunProviderClasses()) {
+                for (Method m : sysfunProvider.getMethods()) {
+                    if (!Modifier.isStatic(m.getModifiers()) || !Modifier.isPublic(m.getModifiers()))
+                        continue;
+                    boolean throwsSqlException = false;
+                    for (Class<?> et : m.getExceptionTypes()) {
+                        if (et.isAssignableFrom(SQLException.class))
+                            throwsSqlException = true;
+                    }
+                    short sqlControl = throwsSqlException ? RoutineAliasInfo.READS_SQL_DATA : RoutineAliasInfo.NO_SQL;
+                    Procedure.Builder builder = Procedure.newBuilder()
+                            .name(m.getName())
+                            .numOutputParams(0)
+                            .numResultSets(0)
+                            .isDeterministic(true)
+                            .sqlControl(sqlControl)
+                            .returnType(getSysFunTypeDescriptor(m.getReturnType()))
+                            .ownerClass(m.getDeclaringClass().getCanonicalName());
+                    int i = 0;
+                    for (Class<?> parameterType : m.getParameterTypes()) {
+                        builder.arg("p" + i++, getSysFunTypeDescriptor(parameterType));
+                    }
+                    SYSFUN_PROCEDURES.add(builder.build());
+                }
+            }
         }catch(StandardException se){
             throw new RuntimeException(se);
         }
     }
 
+    private static Set<Class<?>> findSysfunProviderClasses() throws StandardException {
+        try {
+            Set<Class<?>> result = new HashSet<>();
+            String serviceFilename = "META-INF/services/" + SysfunProvider.class.getName();
+            for (URL url : Collections.list(ClassLoader.getSystemResources(serviceFilename))) {
+                for (String line : Resources.readLines(url, Charsets.UTF_8)) {
+                    String className = line.replaceAll("#.*$", "").trim();
+                    if (className.length() != 0)
+                        result.add(Class.forName(className));
+                }
+            }
+            return result;
+        } catch (Exception e) {
+            throw StandardException.newException(SQLState.SERVICE_MISSING_IMPLEMENTATION, e);
+        }
+    }
+
+    private static TypeDescriptor getSysFunTypeDescriptor(Class<?> type) throws StandardException {
+        TypeId typeId = TypeId.getSQLTypeForJavaType(type.getCanonicalName());
+        if (typeId.getJDBCTypeId() == Types.NUMERIC || typeId.getJDBCTypeId() == Types.DECIMAL) {
+            // return artificial DECIMAL(62,31) so that DECIMAL(x<=31,y<=x) arguments don't get truncated when passed to BigDecimal params
+            return new DataTypeDescriptor(typeId, 62, 31, true, 65).getCatalogType();
+        } else {
+            return new DataTypeDescriptor(typeId, !type.isPrimitive()).getCatalogType();
+        }
+    }
 }
